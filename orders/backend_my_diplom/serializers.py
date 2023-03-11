@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from backend_my_diplom.models import User, Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
+from models import User, Category, Shop, ProductInfo, Product, ProductParameter, OrderItem, Order, Contact
 
 
 class ContactSerializer(serializers.ModelSerializer):

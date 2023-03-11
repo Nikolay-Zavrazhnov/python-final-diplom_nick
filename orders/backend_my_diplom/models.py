@@ -154,6 +154,7 @@ class Contact(models.Model):
         return f'{self.city} {self.street} {self.house}'
 
 class Shop(models.Model):
+    objects = None
     name = models.CharField(max_length=50, verbose_name='Название')
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     state = models.BooleanField(verbose_name='статус получения заказов', default=True)
