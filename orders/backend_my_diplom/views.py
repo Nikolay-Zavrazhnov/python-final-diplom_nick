@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
@@ -166,18 +166,23 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
     ordering = ('name',)
 
-class ShopView(ListAPIView):
+class ShopViewSet(ListAPIView):
     """
     Класс для просмотра списка магазинов
     """
-    queryset = Shop.objects.filter(state=True)
+    queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+    ordering = ('name',)
 
 
-class ProductInfoViewSet(APIView):
+class ProductInfoViewSet(ReadOnlyModelViewSet):
     """
     Класс для поиска товаров
     """
+    queryset = ProductInfo.objects.all()
+    serializer_class = ProductInfoSerializer
+    http_method_names = ['get', ]
+
     def get(self, request, *args, **kwargs):
 
         query = Q(shop__state=True)
