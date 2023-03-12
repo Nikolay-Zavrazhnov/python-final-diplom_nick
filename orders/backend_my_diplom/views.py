@@ -7,19 +7,23 @@ from django.core.validators import URLValidator
 from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
+
 from requests import get
+
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
-from backend_my_diplom.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
+
+from models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
-from backend_my_diplom.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
+from serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from backend_my_diplom.signals import new_user_registered, new_order
+from signals import new_user_registered, new_order
 
 
 class RegisterAccount(APIView):
@@ -147,13 +151,20 @@ class LoginAccount(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-class CategoryView(ListAPIView):
+# class CategoryView(ListAPIView):
+#     """
+#     Класс для просмотра категорий
+#     """
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+
+class CategoryViewSet(ModelViewSet):
     """
     Класс для просмотра категорий
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
+    ordering = ('name',)
 
 class ShopView(ListAPIView):
     """
@@ -163,7 +174,7 @@ class ShopView(ListAPIView):
     serializer_class = ShopSerializer
 
 
-class ProductInfoView(APIView):
+class ProductInfoViewSet(APIView):
     """
     Класс для поиска товаров
     """

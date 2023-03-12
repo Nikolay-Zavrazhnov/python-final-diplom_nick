@@ -1,7 +1,13 @@
 from django.urls import path
 from django_rest_passwordreset.views import reset_password_request_token, reset_password_confirm
+from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 
-from views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, ProductInfoView, BasketView, AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount
+from views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryViewSet, ShopView, ProductInfoViewSet, BasketView, AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount
+
+router = DefaultRouter()
+router.register(r'category', CategoryViewSet)
+router.register(r'product', ProductInfoViewSet, basename='products')
 
 app_name = 'backend_my_diplom'
 urlpatterns = [
@@ -15,9 +21,9 @@ urlpatterns = [
     path('user/login', LoginAccount.as_view(), name='user-login'),
     path('user/password_reset', reset_password_request_token, name='password-reset'),
     path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
-    path('categories', CategoryView.as_view(), name='categories'),
+    # path('categories', CategoryView.as_view(), name='categories'),
     path('shops', ShopView.as_view(), name='shops'),
-    path('products', ProductInfoView.as_view(), name='shops'),
+    # path('products', ProductInfoView.as_view(), name='shops'),
     path('basket', BasketView.as_view(), name='basket'),
     path('order', OrderView.as_view(), name='order'),
 
