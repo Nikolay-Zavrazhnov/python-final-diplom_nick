@@ -7,7 +7,7 @@ from django.core.validators import URLValidator
 from django.db import IntegrityError
 from yaml import load as load_yaml, Loader
 
-from orders.backend_my_diplom.models import Shop, Category, ProductInfo, Product, Parameter, ProductParameter
+from .models import Shop, Category, ProductInfo, Product, Parameter, ProductParameter
 
 
 @shared_task()

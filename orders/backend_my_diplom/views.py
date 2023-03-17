@@ -22,7 +22,7 @@ from .models import Shop, Category, Product, ProductInfo, Parameter, ProductPara
 from .serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
 # from signals import new_user_registered, new_order
-from .tasks import send_email, get_import
+from .tasks import send_email
 
 
 class RegisterAccount(APIView):
