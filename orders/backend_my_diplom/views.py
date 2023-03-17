@@ -17,11 +17,12 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
-from models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
-from serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
+from .serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer
-from signals import new_user_registered, new_order
+# from signals import new_user_registered, new_order
+from .tasks import send_email, get_import
 
 
 class RegisterAccount(APIView):
@@ -57,7 +58,7 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
-                    new_user_registered.send(sender=self.__class__, user_id=user.id)
+
                     return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -320,7 +321,7 @@ class PartnerUpdate(APIView):
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
         if request.user.type != 'shop':
-            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
+            return JsonResponse({'Status': False, 'Error': 'exclusively for stores'}, status=403)
 
         url = request.data.get('url')
         if url:
@@ -529,7 +530,8 @@ class OrderView(APIView):
                     return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
                 else:
                     if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
+                        send_email.delay('status update', 'Order created',
+                                         request.user.email)
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
