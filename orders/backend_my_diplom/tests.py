@@ -29,7 +29,6 @@ class APITests(APITestCase):
 
     def create_test_user(self):
         data = deepcopy(self.data)
-        data.pop('contacts', [])
         password = data.pop('password')
 
         user = User.objects.create(**data, type='buyer')
@@ -49,7 +48,8 @@ class APITests(APITestCase):
 
     def test_user_reg_empty(self):
         """
-        тест RegisterAccount проверка - незаполненные данные.
+        тест RegisterAccount проверка - незаполненные данные,
+        при регистрации
         """
 
         data = deepcopy(self.data)
@@ -87,4 +87,37 @@ class APITests(APITestCase):
         assert response.status_code == 403
         assert response.data['Status'] is False
         assert 'Errors' in response.data
+
+    def test_login_account(self):
+        """
+        views LoginAccount,
+        проверка статуса авторизации
+        """
+
+        self.create_test_user()
+        email = self.data['email']
+        password = self.data['password']
+        login_data = dict(email=email, password=password)
+        response = self.client.post(self.url_user_login, login_data)
+
+        assert response.status_code is 200
+        assert 'Status' in response.data
+        assert response.data['Status'] is True
+
+    def test_login_empty_data(self):
+        """
+        views LoginAccount проверка заполнения обязательных полей
+        при авторизации
+        """
+
+        self.create_test_user()
+        email = self.data['email']
+        password = self.data['password']
+        login_data = dict(email=email, password=password)
+        login_data.pop('email')
+
+        response = self.client.post(self.url_user_login, login_data)
+
+        assert self.failureException == AssertionError
+        assert response.status_code == 401
 
