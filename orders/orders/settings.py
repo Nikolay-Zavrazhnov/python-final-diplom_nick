@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'drf_spectacular',
+    'drf_spectacular_sidecar',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

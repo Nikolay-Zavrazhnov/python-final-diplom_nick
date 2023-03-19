@@ -186,7 +186,7 @@ class APITests(APITestCase):
         Проверяет код HTTP-статуса,наличие Errors в данных ответа.
         """
 
-        url_contact = reverse('usermanager:user-contact')
+        url_contact = reverse('user-contact')
 
         self.create_test_user()
         email = self.data['email']
@@ -207,4 +207,42 @@ class APITests(APITestCase):
         assert response.status_code == 401
         assert response.data['Status'] is False
         assert 'Error' not in response.data
+
+    def test_delete_contact(self):
+        """ views ContactView Проверка метода delete .
+        Проверяет status_code и наличие статуса True в данных ответа.
+        """
+
+        url_contact = reverse('user-contact')
+
+        self.create_test_user()
+        email = self.data['email']
+        user = User.objects.get(email=email)
+        token = Token.objects.get_or_create(user_id=user.id)[0].key
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        data = {"items": "10"}
+
+        response = self.client.delete(url_contact, data=data, format='json')
+
+        assert response.status_code == 200
+
+    def test_delete_contact_empty_data(self):
+        """ views ContactView проверка метода delete при незаполненных полях
+        Проверяет соответсвие status_code коду 404,
+        """
+
+        url_contact = reverse('user-contact')
+
+        self.create_test_user()
+        email = self.data['email']
+        user = User.objects.get(email=email)
+        token = Token.objects.get_or_create(user_id=user.id)[0].key
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        data = {"items": ''}
+
+        response = self.client.delete(url_contact, data=data, format='json')
+
+        assert response.status_code == 400
 
