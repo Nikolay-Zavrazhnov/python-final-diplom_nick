@@ -21,8 +21,8 @@ class APITests(APITestCase):
         'position': 'Pos',
 
     }
-    url_user_register = reverse('usermanager:user-register')
-    url_user_login = reverse('usermanager:user-login')
+    url_user_register = reverse('user-register')
+    url_user_login = reverse('user-login')
 
     def setUp(self):
         return super().setUp()
@@ -120,4 +120,91 @@ class APITests(APITestCase):
 
         assert self.failureException == AssertionError
         assert response.status_code == 401
+
+    def test_get_contact(self):
+        """ views ContactView test метода get на отсутсвие Errors в данных
+        ответа.
+        """
+
+        url_contact = reverse('user-contact')
+
+        self.create_test_user()
+        email = self.data['email']
+        user = User.objects.get(email=email)
+        token = Token.objects.get_or_create(user_id=user.id)[0].key
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        response = self.client.get(url_contact, format='json')
+
+        assert response.status_code == 200
+        assert 'Errors' not in response.data
+
+    def test_get_contact_anon(self):
+        """
+        views ContactView test метода get на проверку выполнения запроса неавторизованым пользователем,
+        наличие в данных ответа Errors.
+        """
+
+        url_contact = reverse('user-contact')
+        response = self.client.get(url_contact, format='json')
+
+        assert response.status_code == 403
+        assert response.data['Status'] is False
+        assert 'Error' in response.data
+
+    def test_contact_post(self):
+        """ views ContactView проверка метода post
+        Проверяет код HTTP-статуса,отсутсвие Errors в данных ответа.
+        """
+
+        url_contact = reverse('user-contact')
+
+        self.create_test_user()
+        email = self.data['email']
+        user = User.objects.get(email=email)
+        token = Token.objects.get_or_create(user_id=user.id)[0].key
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        data = {
+            "city": "SomeCity",
+            "street": "AnyStreet",
+            "house": "999",
+            "structure": "99",
+            "building": "9",
+            "apartment": "9898",
+            "phone": "8-999-888-77-66"
+        }
+
+        response = self.client.post(url_contact, data=data)
+
+        assert response.status_code == 201
+        assert response.data['Status'] is True
+        assert 'Error' not in response.data
+
+    def test_post_contact_empty_data(self):
+        """ views ContactView проверка метода post при незаполненных полях
+        Проверяет код HTTP-статуса,наличие Errors в данных ответа.
+        """
+
+        url_contact = reverse('usermanager:user-contact')
+
+        self.create_test_user()
+        email = self.data['email']
+        user = User.objects.get(email=email)
+        token = Token.objects.get_or_create(user_id=user.id)[0].key
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+
+        data = {
+            "city": "SomeCity",
+            "street": "AnyStreet",
+            "structure": "99",
+            "building": "9",
+            "phone": "8-999-888-77-66"
+        }
+
+        response = self.client.post(url_contact, data=data, format='json')
+
+        assert response.status_code == 401
+        assert response.data['Status'] is False
+        assert 'Error' not in response.data
 
